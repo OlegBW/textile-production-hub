@@ -3,8 +3,10 @@ from dotenv import load_dotenv
 from flask import Flask
 from flask_smorest import Api
 from flask_migrate import Migrate
+from flask_jwt_extended import JWTManager
 
 from db import db
+from resources.user import blp as UserBlueprint
 
 
 def create_app(db_url=None):
@@ -28,4 +30,9 @@ def create_app(db_url=None):
     api = Api(app)  # noqa: F841
     db.init_app(app)
     migrate = Migrate(app, db)  # noqa: F841
+
+    app.config["JWT_SECRET_KEY"] = "5446649551128884611"
+    jwt = JWTManager(app)  # noqa: F841
+
+    api.register_blueprint(UserBlueprint)
     return app

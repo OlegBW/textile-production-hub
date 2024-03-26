@@ -11,7 +11,7 @@ build:
     @sudo docker build -t forecast-api .
 
 dev:
-    @sudo docker run -d -p 5005:5000 -w /app -v "$(pwd):/app" forecast-api
+    @sudo docker run -d -p 5005:80 -w /app -v "$(pwd):/app" forecast-api
 
 start:
-    @sudo docker run -d -p 5005:5000 forecast-api
+    @sudo docker run -d -p 5005:80 forecast-api
