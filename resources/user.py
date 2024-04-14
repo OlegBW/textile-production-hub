@@ -36,7 +36,9 @@ class UserLogin(MethodView):
         ).first()
 
         if user and verify_password(user.password, user_credentials["password"]):
-            access_token = create_access_token(identity=user.id)
+            access_token = create_access_token(
+                identity={"id": user.id, "role": user.role}
+            )
             return {"access_token": access_token}
 
         abort(401)
