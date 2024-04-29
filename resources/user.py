@@ -19,7 +19,7 @@ class UserRegister(MethodView):
         user_data["password"] = get_password_hash(user_data["password"])
 
         try:
-            new_user = UserModel(**user_data)
+            new_user = UserModel(**user_data, role="user")
             db.session.add(new_user)
             db.session.commit()
             return {"msg": "User created"}, 201

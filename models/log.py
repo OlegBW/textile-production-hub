@@ -1,7 +1,8 @@
 from db import db
+from .shared import TableRepr
 
 
-class LogModel(db.Model):
+class LogModel(db.Model, TableRepr):
     __tablename__ = "logs"
 
     id = db.Column(db.Integer, primary_key=True)

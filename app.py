@@ -8,6 +8,8 @@ from flask_jwt_extended import JWTManager
 from db import db
 from resources.user import blp as UserBlueprint
 from resources.prediction import blp as PredictionBlueprint
+from resources.admin import blp as AdminBlueprint
+from resources.report import blp as ReportBlueprint
 
 
 def create_app(db_url=None):
@@ -28,6 +30,20 @@ def create_app(db_url=None):
     )
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
+    app.config["API_SPEC_OPTIONS"] = {
+        "security": [{"bearerAuth": []}],
+        "components": {
+            "securitySchemes": {
+                "bearerAuth": {
+                    "type": "http",
+                    "scheme": "bearer",
+                    "bearerFormat": "JWT",
+                }
+            }
+        },
+    }
+    app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024
+
     api = Api(app)  # noqa: F841
     db.init_app(app)
     migrate = Migrate(app, db, render_as_batch=True)  # noqa: F841
@@ -37,4 +53,6 @@ def create_app(db_url=None):
 
     api.register_blueprint(UserBlueprint)
     api.register_blueprint(PredictionBlueprint)
+    api.register_blueprint(AdminBlueprint)
+    api.register_blueprint(ReportBlueprint)
     return app

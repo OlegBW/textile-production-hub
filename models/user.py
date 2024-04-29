@@ -1,7 +1,8 @@
 from db import db
+from .shared import TableRepr
 
 
-class UserModel(db.Model):
+class UserModel(db.Model, TableRepr):
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -12,4 +13,10 @@ class UserModel(db.Model):
 
     logs = db.relationship(
         "LogModel", back_populates="user", lazy="dynamic", cascade="all, delete"
+    )
+    reports = db.relationship(
+        "ProductionReportModel",
+        back_populates="user",
+        lazy="dynamic",
+        cascade="all, delete",
     )

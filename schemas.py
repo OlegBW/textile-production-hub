@@ -1,4 +1,5 @@
-from marshmallow import Schema, fields, validate
+from marshmallow import Schema, fields, validate, validates, ValidationError
+from flask_smorest.fields import Upload
 
 
 class UserRegisterSchema(Schema):
@@ -12,6 +13,14 @@ class UserLoginSchema(Schema):
     id = fields.Int(dump_only=True)
     email = fields.Email(required=True)
     password = fields.Str(required=True, load_only=True)
+
+
+class UserSchema(Schema):
+    id = fields.Int(dump_only=True)
+    username = fields.Str(required=True)
+    email = fields.Email(required=True)
+    password = fields.Str(required=True, load_only=True)
+    role = fields.Str(dump_only=True)
 
 
 class PredictionInputSchema(Schema):
@@ -29,7 +38,39 @@ class PredictionInputSchema(Schema):
 
 
 class PredictionBulkSchema(Schema):
-    file = fields.Raw(type="file")
+    file = Upload()
+
+    @validates("file")
+    def validate_file(self, data):
+        file_name = data.filename.lower()
+        print(data, data.__dict__)
+        if not file_name.endswith(".csv"):
+            raise ValidationError("Only CSV files are allowed.")
+
+        return True
 
 
-# Додати валідації файлу
+class UserRoleSchema(Schema):
+    role = fields.Str(
+        validate=validate.OneOf(["user", "admin", "manager", "analyst", "worker"]),
+        required=True,
+    )
+
+
+class ProductionDataSchema(Schema):
+    req_finish_fabrics = fields.Float(required=True)
+    fabric_allowance = fields.Float(required=True)
+    rec_beam_length_yds = fields.Float(required=True)
+    shrink_allow = fields.Float(required=True)
+    req_grey_fabric = fields.Float(required=True)
+    req_beam_length_yds = fields.Float(required=True)
+    total_pdn_yds = fields.Float(required=True)
+    rejection = fields.Float(required=True)
+    warp_count = fields.Float(required=True)
+    weft_count = fields.Float(required=True)
+    epi = fields.Integer(required=True)
+    ppi = fields.Integer(required=True)
+
+
+class ProductionReportSchema(ProductionDataSchema):
+    id = fields.Int(dump_only=True)
