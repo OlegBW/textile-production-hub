@@ -4,9 +4,9 @@ from flask_smorest import Blueprint
 from sqlalchemy.exc import IntegrityError
 from flask_jwt_extended import create_access_token
 
-from schemas import UserRegisterSchema, UserLoginSchema
+from schemas import UserRegisterSchema, UserLoginSchema, UserSchema
 from db import db
-from utils.password import get_password_hash, verify_password
+from lib.password import get_password_hash, verify_password
 from models import UserModel
 
 blp = Blueprint("users", __name__, description="Operations on users")
@@ -42,3 +42,11 @@ class UserLogin(MethodView):
             return {"access_token": access_token}
 
         abort(401)
+
+
+@blp.route("/users/<int:user_id>")
+class User(MethodView):
+    @blp.response(200, UserSchema)
+    def get(self, user_id):
+        user = UserModel.query.get_or_404(user_id)
+        return user

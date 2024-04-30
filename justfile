@@ -8,7 +8,7 @@ format flag="" path=".":
     @ruff format {{flag}} {{path}}
 
 build:
-    @sudo docker build -t forecast-api .
+    @podman build -t textile-production-hub .
 
 dev:
-    @sudo docker run -p 5005:80 -w /app -v "$(pwd):/app" forecast-api
+    @podman run --rm -p 5005:5500 -w /app -v "$(pwd):/app" --privileged textile-production-hub

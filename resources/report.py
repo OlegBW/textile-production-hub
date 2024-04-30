@@ -1,7 +1,7 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from utils.decorators.role_required import role_required
+from lib.decorators.role_required import role_required
 
 from db import db
 from schemas import ProductionDataSchema, ProductionReportSchema

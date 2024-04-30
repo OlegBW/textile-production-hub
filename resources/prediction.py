@@ -5,10 +5,10 @@ from flask_jwt_extended import jwt_required
 from flask import request
 
 from schemas import PredictionInputSchema, PredictionBulkSchema
-from utils.prediction import predict, predict_bulk
-from utils.decorators.role_required import role_required
-from utils.decorators.limit_content_length import limit_content_length
-from utils.logs import log
+from lib.prediction import predict, predict_bulk
+from lib.decorators.role_required import role_required
+from lib.decorators.limit_content_length import limit_content_length
+from lib.logs import log
 
 blp = Blueprint("predictions", __name__, description="Operations on predictions")
 

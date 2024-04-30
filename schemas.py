@@ -74,3 +74,10 @@ class ProductionDataSchema(Schema):
 
 class ProductionReportSchema(ProductionDataSchema):
     id = fields.Int(dump_only=True)
+
+
+class ConstructionSchema(Schema):
+    warp_count = fields.Integer(required=True)
+    weft_count = fields.Integer(required=True)
+    epi = fields.Integer(required=True)
+    ppi = fields.Integer(required=True)
