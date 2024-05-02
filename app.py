@@ -11,6 +11,7 @@ from resources.prediction import blp as PredictionBlueprint
 from resources.admin import blp as AdminBlueprint
 from resources.report import blp as ReportBlueprint
 from resources.construction import blp as ConstructionBlueprint
+from resources.metric import blp as MetricBlueprint
 
 from cli.seed import load_fixtures
 
@@ -59,6 +60,7 @@ def create_app(db_url=None):
     api.register_blueprint(AdminBlueprint)
     api.register_blueprint(ReportBlueprint)
     api.register_blueprint(ConstructionBlueprint)
+    api.register_blueprint(MetricBlueprint)
 
     app.cli.add_command(load_fixtures)
     return app

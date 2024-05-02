@@ -20,7 +20,7 @@ class ProductionData(db.Model, TableRepr):
     rejection = db.Column(db.Float, nullable=False)
 
 
-class ProductionReportModel(ProductionData):
+class ProductionReportModel(ProductionData, TableRepr):
     __tablename__ = "production_report"
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     user = db.relationship("UserModel", back_populates="reports")

@@ -81,3 +81,11 @@ class ConstructionSchema(Schema):
     weft_count = fields.Integer(required=True)
     epi = fields.Integer(required=True)
     ppi = fields.Integer(required=True)
+
+
+class LogSchema(Schema):
+    id = fields.Int(dump_only=True)
+    message = fields.Str()
+    timestamp = fields.DateTime()
+
+    user = fields.Nested(UserSchema)

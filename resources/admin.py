@@ -4,8 +4,13 @@ from flask_jwt_extended import jwt_required
 from sqlalchemy.exc import IntegrityError
 
 from db import db
-from models import UserModel
-from schemas import UserRoleSchema, UserSchema
+from models import (
+    UserModel,
+    LogModel,
+    ProductionReportModel,
+    ProcessedProductionDataModel,
+)
+from schemas import UserRoleSchema, UserSchema, LogSchema
 
 from lib.password import get_password_hash
 
@@ -46,3 +51,49 @@ class UserRole(MethodView):
         db.session.add(user)
         db.session.commit()
         return user
+
+
+@blp.route("/admin/logs")
+class LogList(MethodView):
+    @jwt_required()
+    @blp.paginate()
+    @blp.response(200, LogSchema(many=True))
+    def get(self, pagination_parameters):
+        total_items = LogModel.query.count()
+        pagination_parameters.item_count = total_items
+
+        page_size = pagination_parameters.page_size
+        page = pagination_parameters.page
+
+        log_page = LogModel.query.limit(page_size).offset((page - 1) * page_size).all()
+        return log_page
+
+
+@blp.route("/admin/reports/<int:report_id>/submit")
+class Report(MethodView):
+    @jwt_required()
+    def post(self, report_id):
+        report = ProductionReportModel.query.get_or_404(report_id)
+
+        processed_data = ProcessedProductionDataModel(
+            **{
+                "req_finish_fabrics": report.req_finish_fabrics,
+                "fabric_allowance": report.fabric_allowance,
+                "rec_beam_length_yds": report.rec_beam_length_yds,
+                "shrink_allow": report.shrink_allow,
+                "req_grey_fabric": report.req_grey_fabric,
+                "req_beam_length_yds": report.req_beam_length_yds,
+                "total_pdn_yds": report.total_pdn_yds,
+                "warp_count": report.warp_count,
+                "weft_count": report.weft_count,
+                "epi": report.epi,
+                "ppi": report.ppi,
+                "rejection": report.rejection,
+            }
+        )
+
+        db.session.delete(report)
+        db.session.add(processed_data)
+        db.session.commit()
+
+        return {"msg": "Report approved"}
