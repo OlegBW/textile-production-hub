@@ -8,14 +8,6 @@ from schemas import ConstructionSchema
 
 blp = Blueprint("metrics", __name__, description="Metrics for data visualization")
 
-# Прийняти конструкції
-# Зробити запит БД на отримання середнього значення відходів
-# Повернути отримані з БД метрики
-
-# avg_rejection = db.session.query(
-#     db.func.avg(ProcessedProductionDataModel.rejection)
-# ).scalar()
-
 
 @blp.route("/metrics/rejection")
 class RejectionMetrics(MethodView):
@@ -25,7 +17,9 @@ class RejectionMetrics(MethodView):
         metrics = []
 
         for construction in constructions:
-            metrica = (
+            metrica_sign = f'{construction["warp_count"]}/{construction["weft_count"]}/{construction["epi"]}/{construction["ppi"]}'
+
+            metrica_value = (
                 db.session.query(
                     (
                         (
@@ -45,5 +39,5 @@ class RejectionMetrics(MethodView):
                 )
                 .scalar()
             )
-            metrics.append(metrica)
-        return {"result": metrics}
+            metrics.append({"name": metrica_sign, "value": metrica_value})
+        return metrics

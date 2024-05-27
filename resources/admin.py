@@ -1,6 +1,6 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy.exc import IntegrityError
 
 from db import db
@@ -13,6 +13,7 @@ from models import (
 from schemas import UserRoleSchema, UserSchema, LogSchema
 
 from lib.password import get_password_hash
+from lib.logs import log
 
 blp = Blueprint("admin", __name__, description="Administration operations")
 
@@ -23,6 +24,9 @@ class User(MethodView):
     @blp.arguments(UserSchema)
     @blp.response(200, UserSchema)
     def put(self, user_data, user_id):
+        jwt_sub = get_jwt_identity()
+        current_user_id = jwt_sub["id"]
+
         user = UserModel.query.get_or_404(user_id)
         user.role = user_data["role"]
         user.username = user_data["username"]
@@ -30,13 +34,19 @@ class User(MethodView):
         user.password = get_password_hash(user_data["password"])
         db.session.add(user)
         db.session.commit()
+        log(f"Updating a user with ID:{user_id}", current_user_id)
         return user
 
     @jwt_required()
     def delete(self, user_id):
+        jwt_sub = get_jwt_identity()
+        current_user_id = jwt_sub["id"]
+
         user = UserModel.query.get_or_404(user_id)
 
         db.session.delete(user)
+        db.session.commit()
+        log(f"Removing a user with an ID:{user_id}", current_user_id)
         return {"msg": "User deleted"}
 
 
@@ -46,10 +56,17 @@ class UserRole(MethodView):
     @blp.arguments(UserRoleSchema)
     @blp.response(200, UserSchema)
     def patch(self, role_data, user_id):
+        jwt_sub = get_jwt_identity()
+        current_user_id = jwt_sub["id"]
+
         user = UserModel.query.get_or_404(user_id)
         user.role = role_data["role"]
         db.session.add(user)
         db.session.commit()
+        log(
+            f'Setting up a role:{role_data["role"]} to a user with an ID:{user_id}',
+            current_user_id,
+        )
         return user
 
 
@@ -73,6 +90,8 @@ class LogList(MethodView):
 class Report(MethodView):
     @jwt_required()
     def post(self, report_id):
+        jwt_sub = get_jwt_identity()
+        current_user_id = jwt_sub["id"]
         report = ProductionReportModel.query.get_or_404(report_id)
 
         processed_data = ProcessedProductionDataModel(
@@ -95,5 +114,6 @@ class Report(MethodView):
         db.session.delete(report)
         db.session.add(processed_data)
         db.session.commit()
+        log(f"Confirmation of the report with ID:{report_id}", current_user_id)
 
         return {"msg": "Report approved"}

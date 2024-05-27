@@ -14,5 +14,12 @@ def predict(data):
 def predict_bulk(csv_file):
     prediction_data = pd.read_csv(csv_file)
 
-    result = list(model.predict(prediction_data))
-    return result
+    predictions = model.predict(prediction_data)
+
+    result_df = pd.DataFrame(predictions, columns=["Prediction"])
+
+    result_data = pd.concat([prediction_data, result_df], axis=1)
+
+    csv_output = result_data.to_csv(index=False)
+
+    return csv_output

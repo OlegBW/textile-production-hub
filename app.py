@@ -4,6 +4,7 @@ from flask import Flask
 from flask_smorest import Api
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
+from flask_cors import CORS
 
 from db import db
 from resources.user import blp as UserBlueprint
@@ -54,6 +55,7 @@ def create_app(db_url=None):
 
     app.config["JWT_SECRET_KEY"] = "5446649551128884611"
     jwt = JWTManager(app)  # noqa: F841
+    CORS(app, expose_headers=["X-Pagination"])
 
     api.register_blueprint(UserBlueprint)
     api.register_blueprint(PredictionBlueprint)

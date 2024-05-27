@@ -2,6 +2,7 @@ from flask.views import MethodView
 from flask_smorest import Blueprint
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from lib.decorators.role_required import role_required
+from lib.logs import log
 
 from db import db
 from schemas import ProductionDataSchema, ProductionReportSchema
@@ -23,6 +24,7 @@ class ProductionReports(MethodView):
         new_report = ProductionReportModel(**production_data, user_id=user_id)
         db.session.add(new_report)
         db.session.commit()
+        log("Report created", user_id)
 
         return {"msg": "Report created"}, 201
 
@@ -46,14 +48,21 @@ class ProductionReports(MethodView):
 class ProductionReport(MethodView):
     @jwt_required()
     def delete(self, report_id):
+        jwt_sub = get_jwt_identity()
+        user_id = jwt_sub["id"]
+
         report = ProductionReportModel.query.get_or_404(report_id)
         db.session.delete(report)
         db.session.commit()
+        log(f"Deleted report with ID:{report_id}", user_id)
         return {"msg": "Report deleted"}
 
     @jwt_required()
     @blp.arguments(ProductionDataSchema)
     def put(self, production_data, report_id):
+        jwt_sub = get_jwt_identity()
+        user_id = jwt_sub["id"]
+
         report = ProductionReportModel.query.get(report_id)
 
         if report:
@@ -75,6 +84,7 @@ class ProductionReport(MethodView):
 
         db.session.add(report)
         db.session.commit()
+        log(f"Updated report with ID:{report_id}", user_id)
         return {"msg": "Report updated"}
 
     @blp.response(200, ProductionReportSchema)

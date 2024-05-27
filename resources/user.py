@@ -2,7 +2,7 @@ from flask import abort
 from flask.views import MethodView
 from flask_smorest import Blueprint
 from sqlalchemy.exc import IntegrityError
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 
 from schemas import UserRegisterSchema, UserLoginSchema, UserSchema
 from db import db
@@ -42,6 +42,17 @@ class UserLogin(MethodView):
             return {"access_token": access_token}
 
         abort(401)
+
+
+@blp.route("/users/me")
+class CurrentUser(MethodView):
+    @jwt_required()
+    @blp.response(200, UserSchema)
+    def get(self):
+        jwt_sub = get_jwt_identity()
+        user_id = jwt_sub["id"]
+        user = UserModel.query.get_or_404(user_id)
+        return user
 
 
 @blp.route("/users/<int:user_id>")
